@@ -24,12 +24,14 @@ import { cn } from "@/lib/utils";
 import { useCreateProject } from "../api/use-create-project";
 import { createProjectSchema } from "../schema";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
+import { Textarea } from "@/components/ui/textarea";
 
 interface CreateProjectFormProps {
   onCancel?: () => void;
+  useAI?: boolean;
 }
 
-export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
+export const CreateProjectForm = ({ onCancel, useAI = false }: CreateProjectFormProps) => {
   const router = useRouter();
   const workspaceId = useWorkspaceId();
   const { mutate, isPending } = useCreateProject();
@@ -38,6 +40,7 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
     resolver: zodResolver(createProjectSchema.omit({ workspaceId: true })),
     defaultValues: {
       name: "",
+      prompt: "",
     },
   });
 
@@ -46,6 +49,7 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
       ...values,
       workspaceId,
       image: values.image instanceof File ? values.image : "",
+      generation_type: useAI ? "ai_generated" : "manual",
     };
     mutate(
       { form: finalValues },
@@ -90,6 +94,25 @@ export const CreateProjectForm = ({ onCancel }: CreateProjectFormProps) => {
                   </FormItem>
                 )}
               />
+              {useAI && (
+                <FormField
+                  control={form.control}
+                  name="prompt"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-black">Project Description</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Describe your project in detail. The AI will generate tasks and assign them to team members based on their skills."
+                          {...field}
+                          rows={5}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+              )}
               <FormField
                 control={form.control}
                 name="image"

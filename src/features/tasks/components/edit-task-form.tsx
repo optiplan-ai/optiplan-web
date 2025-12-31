@@ -25,16 +25,17 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { MembersAvatar } from "@/features/members/components/members-avatar";
-import { Task, TaskStatus } from "../types";
+import { Task, TaskStatus, TaskWithProject } from "../types";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { useUpdateTask } from "../api/use-update-task";
 import { createTaskSchema } from "../schemas";
+import { AISuggestionsPanel } from "./ai-suggestions-panel";
 
 interface EditTaskFormProps {
   onCancel?: () => void;
-  projectOptions: { id: string; name: string; imageUrl: string }[];
+  projectOptions: { id: string; name: string; imageUrl?: string }[];
   memberOptions: { id: string; name: string }[];
-  initialValues: Task;
+  initialValues: TaskWithProject & { id: string };
 }
 
 export const EditTaskForm = ({
@@ -64,7 +65,7 @@ export const EditTaskForm = ({
 
   const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
     mutate(
-      { json: values, param: { taskId: initialValues.$id } },
+      { json: values, param: { taskId: initialValues.$id ?? initialValues.id } },
       {
         onSuccess: () => {
           form.reset();
@@ -122,7 +123,7 @@ export const EditTaskForm = ({
                   <FormItem>
                     <FormLabel className="text-black">Assignee</FormLabel>
                     <Select
-                      defaultValue={field.value}
+                      defaultValue={field.value ?? undefined}
                       onValueChange={field.onChange}
                     >
                       <FormControl>
@@ -224,6 +225,27 @@ export const EditTaskForm = ({
                   </FormItem>
                 )}
               />
+              {initialValues.projectId && initialValues.$id && (
+                <>
+                  <DottedSeparator />
+                  <AISuggestionsPanel
+                    task={{ 
+                      ...initialValues, 
+                      $id: initialValues.$id, 
+                      id: initialValues.id,
+                      name: initialValues.name ?? "",
+                      status: initialValues.status ?? TaskStatus.TODO,
+                      workspaceId: initialValues.workspaceId ?? "",
+                      assigneeId: initialValues.assigneeId ?? "",
+                      position: initialValues.position ?? 0,
+                      dueDate: initialValues.dueDate ?? "",
+                      createdAt: initialValues.createdAt ? new Date(initialValues.createdAt) : new Date(),
+                      updatedAt: initialValues.updatedAt ? new Date(initialValues.updatedAt) : new Date(),
+                    } as unknown as Task}
+                    memberOptions={memberOptions}
+                  />
+                </>
+              )}
             </div>
             <DottedSeparator className="py-7" />
             <div className="flex items-center justify-between">

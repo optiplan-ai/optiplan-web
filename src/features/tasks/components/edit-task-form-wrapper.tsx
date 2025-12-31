@@ -23,17 +23,22 @@ export const EditTaskFormWrapper = ({
     workspaceId,
   });
   const { data: members, isLoading: isLoadingMembers } = useGetMembers({
-    workspaceId,
+    type: "workspace",
+    id: workspaceId,
   });
-  const projectOptions = projects?.documents.map((project) => ({
-    id: project.$id,
-    name: project.name,
-    imageUrl: project.imageUrl,
-  }));
-  const memberOptions = members?.documents.map((member) => ({
-    id: member.$id,
-    name: member.name,
-  }));
+  const projectOptions = projects?.documents
+    .filter((project): project is NonNullable<typeof project> => project !== null && project.$id !== undefined)
+    .map((project) => ({
+      id: project.$id,
+      name: project.name,
+      imageUrl: project.imageUrl,
+    }));
+  const memberOptions = members?.documents
+    .filter((member): member is typeof member & { $id: string } => member.$id !== undefined)
+    .map((member) => ({
+      id: member.$id,
+      name: member.name,
+    }));
   const isLoading = isLoadingMembers || isLoadingProjects || isLoadingTask;
 
   if (isLoading) {
@@ -51,7 +56,7 @@ export const EditTaskFormWrapper = ({
   return (
     <EditTaskForm
       onCancel={onCancel}
-      initialValues={initialValues}
+      initialValues={{ ...initialValues, id: initialValues.$id ?? "" }}
       projectOptions={projectOptions ?? []}
       memberOptions={memberOptions ?? []}
     />

@@ -1,13 +1,14 @@
 import { MoreHorizontal } from "lucide-react";
-import { Task } from "../types";
+import { TaskWithProject } from "../types";
 import { TaskActions } from "./task-actions";
 import { DottedSeparator } from "@/components/dotted-separator";
 import { MembersAvatar } from "@/features/members/components/members-avatar";
 import { TaskDate } from "./task-date";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
+import { AISuggestionsBadge } from "./ai-suggestions-badge";
 
 interface KanbanCardProps {
-  task: Task;
+  task: TaskWithProject & { assignee?: { name: string; email?: string } | null };
 }
 
 export const KanbanCard = ({ task }: KanbanCardProps) => {
@@ -21,14 +22,23 @@ export const KanbanCard = ({ task }: KanbanCardProps) => {
       </div>
       <DottedSeparator />
       <div className="flex items-center gap-x-1.5">
-        <MembersAvatar
-          name={task.assignee.name}
-          fallbackClassName="text-[10px]"
-        />
-        <div className="size-1 rounded-full bg-black" />
-        <TaskDate value={task.dueDate} className="text-xs" />
+        {task.assignee && (
+          <>
+            <MembersAvatar
+              name={task.assignee.name}
+              fallbackClassName="text-[10px]"
+            />
+            <div className="size-1 rounded-full bg-black" />
+          </>
+        )}
+        {task.dueDate && <TaskDate value={task.dueDate} className="text-xs" />}
       </div>
-      {task.projectId === null || task.projectId === undefined ? (
+      {task.aiSuggestedAssignees && task.aiSuggestedAssignees.length > 0 && task.$id && (
+        <div className="pt-1">
+          <AISuggestionsBadge task={task as any} />
+        </div>
+      )}
+      {!task.project || !task.project.name ? (
         <p className="text-muted-foreground text-xs">No project assigned</p>
       ) : (
         <div className="flex items-center gap-x-1.5">

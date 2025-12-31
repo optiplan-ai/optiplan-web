@@ -1,20 +1,38 @@
-import { Query, type Databases } from "node-appwrite";
-import { DATABASE_ID, MEMBERS_ID } from "@/config";
+import { getDocument, listDocuments, COLLECTIONS } from "@/lib/db-helpers";
+import { Member } from "@/lib/models/Member";
 
-interface getMemberProps {
-  databases: Databases;
-  workspaceId: string;
-  userid: string;
-}
-
-export const getMember = async ({
-  databases,
+export async function getMember({
   workspaceId,
-  userid,
-}: getMemberProps) => {
-  const members = await databases.listDocuments(DATABASE_ID, MEMBERS_ID, [
-    Query.equal("workspaceId", workspaceId),
-    Query.equal("userid", userid),
-  ]);
-  return members.documents[0];
-};
+  userId,
+  projectId,
+}: {
+  workspaceId?: string;
+  userId: string;
+  projectId?: string;
+}): Promise<(Member & { id: string; $id: string }) | null> {
+  const filter: any = {
+    userId: userId,
+  };
+
+  if (workspaceId) {
+    filter.workspaceId = workspaceId;
+  }
+
+  if (projectId) {
+    filter.projectId = projectId;
+  }
+
+  const result = await listDocuments<Member>(COLLECTIONS.members, filter, {
+    limit: 1,
+  });
+
+  if (result.documents.length === 0) {
+    return null;
+  }
+
+  const member = result.documents[0];
+  return {
+    ...member,
+    $id: member.id,
+  };
+}

@@ -1,4 +1,4 @@
-import { Models } from "node-appwrite";
+import { type Project } from "@/features/projects/types";
 
 export enum TaskStatus {
   BACKLOG = "BACKLOG",
@@ -7,7 +7,10 @@ export enum TaskStatus {
   DONE = "DONE",
   IN_REVIEW = "IN_REVIEW",
 }
-export type Task = Models.Document & {
+
+export type Task = {
+  $id: string;
+  id: string;
   name: string;
   status: TaskStatus;
   workspaceId: string;
@@ -16,4 +19,25 @@ export type Task = Models.Document & {
   position: number;
   dueDate: string;
   description?: string;
+  dependsOn?: string[];
+  aiSuggestedAssignees?: string[];
+  createdAt: Date;
+  updatedAt: Date;
+};
+
+export type TaskWithProject = {
+  $id?: string;
+  name?: string;
+  status?: TaskStatus;
+  workspaceId?: string;
+  assigneeId?: string;
+  projectId?: string;
+  position?: number;
+  dueDate?: string;
+  description?: string;
+  dependsOn?: string[];
+  aiSuggestedAssignees?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  project: (Omit<Partial<Project>, "id" | "createdAt" | "updatedAt"> & { $id: string; createdAt?: string; updatedAt?: string }) | null;
 };
