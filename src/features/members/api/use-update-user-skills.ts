@@ -1,13 +1,19 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { client } from "@/lib/rpc";
-import { UserSkill } from "../types";
 import { toast } from "sonner";
+
+type UserSkillInput = {
+  name: string;
+  category: string;
+  experienceYears: number;
+  proficiencyScore: number;
+};
 
 export const useUpdateUserSkills = (memberId: string) => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (skills: UserSkill[]) => {
+    mutationFn: async (skills: UserSkillInput[]) => {
       const response = await client.api.members[":memberId"]["skills"].$post({
         param: { memberId },
         json: {
