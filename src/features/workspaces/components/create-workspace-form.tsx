@@ -47,9 +47,15 @@ export const CreateWorkspaceForm = ({ onCancel }: CreateWorkspaceFormProps) => {
     mutate(
       { form: finalValues },
       {
-        onSuccess: ({ data }) => {
+        onSuccess: (response) => {
           form.reset();
-          router.push(`/workspaces/${data.$id}`);
+          // Response structure: { data: { $id: string, ... } }
+          if (response?.data?.$id) {
+            router.push(`/workspaces/${response.data.$id}`);
+          } else {
+            // Fallback: refresh and let the hook handle redirect
+            router.refresh();
+          }
         },
       }
     );
