@@ -4,18 +4,19 @@ import { Analytics } from "@/components/analytics";
 import { DottedSeparator } from "@/components/dotted-separator";
 import { PageError } from "@/components/page-error";
 import { PageLoader } from "@/components/page-loader";
+import AIButton from "@/components/ui/ai-button";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { useGetMembers } from "@/features/members/api/use-get-members";
 import { MembersAvatar } from "@/features/members/components/members-avatar";
-import { Member } from "@/features/members/types";
+import { MemberWithUser } from "@/features/members/types";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { useCreateProjectModal } from "@/features/projects/hooks/use-create-project-modal";
 import { Project } from "@/features/projects/types";
 import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { useCreateTaskModal } from "@/features/tasks/hooks/use-create-task-modal";
-import { Task } from "@/features/tasks/types";
+import { TaskWithProject } from "@/features/tasks/types";
 import { useGetWorkspaceAnalytics } from "@/features/workspaces/api/use-get-workspace-analytics";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { formatDistanceToNow } from "date-fns";
@@ -33,7 +34,8 @@ export const WorkspaceIdClient = () => {
     workspaceId,
   });
   const { data: members, isLoading: isLoadingMembers } = useGetMembers({
-    workspaceId,
+    id:workspaceId,
+    type: "workspace",
   });
 
   const isLoading =
@@ -55,14 +57,14 @@ export const WorkspaceIdClient = () => {
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <TaskList data={tasks.documents} total={tasks.total} />
         <ProjectList data={projects.documents} total={projects.total} />
-        <MembersList data={members.documents} total={members.total} />
+        <MembersList data={members.documents as MemberWithUser[]} total={members.total} />
       </div>
     </div>
   );
 };
 
 interface TaskListProps {
-  data: Task[];
+  data: TaskWithProject[];
   total: number;
 }
 
@@ -125,15 +127,18 @@ interface ProjectListProps {
 
 export const ProjectList = ({ data, total }: ProjectListProps) => {
   const workspaceId = useWorkspaceId();
-  const { open: createProject } = useCreateProjectModal();
+  const { open: createProject, genAIProject:createAIProject } = useCreateProjectModal();
   return (
     <div className="flex flex-col gap-y-4 col-span-1">
       <div className="bg-white border rounded-lg p-4">
         <div className="flex items-center justify-between">
           <p className="text-lg font-semibold">Projects ({total})</p>
-          <Button variant="muted" size="icon" onClick={createProject}>
-            <PlusIcon className="size-4 text-white" />
-          </Button>
+          <div className="flex items-center gap-x-2">
+            <AIButton text="Generate using AI" onClick={createAIProject} />
+            <Button variant="muted" size="icon" onClick={createProject}>
+              <PlusIcon className="size-4 text-white" />
+            </Button>
+          </div>
         </div>
         <DottedSeparator className="my-4" />
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
@@ -166,7 +171,7 @@ export const ProjectList = ({ data, total }: ProjectListProps) => {
 };
 
 interface MembersListProps {
-  data: Member[];
+  data: MemberWithUser[];
   total: number;
 }
 
