@@ -1,47 +1,65 @@
 import "server-only";
-import {
-  Client,
-  Account,
-  Databases,
-  Databases as DatabaseType,
-  Models,
-  Storage,
-  type Account as AccountType,
-  type Storage as StorageType,
-  type Users as UsersType,
-} from "node-appwrite";
-import { getCookie } from "hono/cookie";
 import { createMiddleware } from "hono/factory";
-import { AUTH_COOKIE } from "@/features/auth/constants";
+import { auth } from "./auth/better-auth";
+import { User } from "./models";
 
 type AdditionalContext = {
   Variables: {
-    account: AccountType;
-    databases: DatabaseType;
-    storage: StorageType;
-    users: UsersType;
-    user: Models.User<Models.Preferences>;
+    user: User & { id: string; $id: string };
+    userId: string;
   };
 };
 
 export const sessionMiddleware = createMiddleware<AdditionalContext>(
   async (c, next) => {
-    const client = new Client()
-      .setEndpoint(process.env.NEXT_PUBLIC_APPWRITE_ENDPOINT!)
-      .setProject(process.env.NEXT_PUBLIC_APPWRITE_PROJECT!);
-    const session = getCookie(c, AUTH_COOKIE);
-    if (!session) {
+    try {
+      // Create a proper request object for Better Auth
+      const url = new URL(
+        "/api/auth/get-session",
+        process.env.BETTER_AUTH_URL || process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"
+      );
+      
+      const request = new Request(url.toString(), {
+        method: "GET",
+        headers: {
+          "Cookie": c.req.header("cookie") || "",
+        },
+      });
+
+      const response = await auth.handler(request);
+      
+      if (!response || !response.ok) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      const sessionData = await response.json().catch(() => null);
+      
+      if (!sessionData || !sessionData.user) {
+        return c.json({ error: "Unauthorized" }, 401);
+      }
+
+      // Convert Better Auth user to our API format (with $id)
+      const userWithId: User & { id: string; $id: string } = {
+        id: sessionData.user.id,
+        email: sessionData.user.email,
+        name: sessionData.user.name || "",
+        emailVerified: sessionData.user.emailVerified ?? false,
+        image: sessionData.user.image ?? null,
+        createdAt: sessionData.user.createdAt 
+          ? new Date(sessionData.user.createdAt) 
+          : new Date(),
+        updatedAt: sessionData.user.updatedAt 
+          ? new Date(sessionData.user.updatedAt) 
+          : new Date(),
+        $id: sessionData.user.id,
+      };
+
+      c.set("user", userWithId);
+      c.set("userId", sessionData.user.id);
+      await next();
+    } catch (error) {
+      console.error("Session middleware error:", error);
       return c.json({ error: "Unauthorized" }, 401);
     }
-    client.setSession(session);
-    const account = new Account(client);
-    const databases = new Databases(client);
-    const storage = new Storage(client);
-    const user = await account.get();
-    c.set("account", account);
-    c.set("databases", databases);
-    c.set("storage", storage);
-    c.set("user", user);
-    await next();
   }
 );
