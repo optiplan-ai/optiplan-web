@@ -51,6 +51,7 @@ export const CreateTaskForm = ({
     defaultValues: {
       workspaceId,
       projectId,
+      status: TaskStatus.TODO,
     },
   });
 
@@ -92,6 +93,23 @@ export const CreateTaskForm = ({
               />
               <FormField
                 control={form.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel className="text-black">Description</FormLabel>
+                    <FormControl>
+                      <textarea
+                        {...field}
+                        placeholder="Enter task description"
+                        className="flex min-h-[80px] w-full rounded-md border border-black/30 bg-transparent px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 hover:bg-slate-300 transition"
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={form.control}
                 name="dueDate"
                 render={({ field }) => (
                   <FormItem>
@@ -114,7 +132,7 @@ export const CreateTaskForm = ({
                   <FormItem>
                     <FormLabel className="text-black">Assignee</FormLabel>
                     <Select
-                      defaultValue={field.value}
+                      value={field.value ?? undefined}
                       onValueChange={field.onChange}
                     >
                       <FormControl>
