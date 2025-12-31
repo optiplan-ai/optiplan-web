@@ -1,12 +1,2 @@
-import { Models } from "node-appwrite";
-
-export enum memberRole {
-  ADMIN = "ADMIN",
-  MEMBER = "MEMBER",
-}
-
-export type Member = Models.Document & {
-  workspaceId: string;
-  userid: string;
-  role: memberRole;
-};
+export { MemberRole, type Member } from "@/lib/models/Member";
+export { type UserSkill } from "@/lib/models/UserSkill";

@@ -1,0 +1,30 @@
+import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { client } from "@/lib/rpc";
+import { UserSkill } from "../types";
+import { toast } from "sonner";
+
+export const useUpdateUserSkills = (memberId: string) => {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: async (skills: UserSkill[]) => {
+      const response = await client.api.members[":memberId"]["skills"].$post({
+        param: { memberId },
+        json: { skills },
+      });
+      if (!response.ok) {
+        throw new Error("Failed to update user skills");
+      }
+      return await response.json();
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ["user-skills", memberId] });
+      queryClient.invalidateQueries({ queryKey: ["members"] });
+      toast.success("Skills updated successfully");
+    },
+    onError: () => {
+      toast.error("Failed to update skills");
+    },
+  });
+};
+
