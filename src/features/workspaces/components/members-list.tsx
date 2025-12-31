@@ -21,6 +21,7 @@ import { useUpdateMember } from "@/features/members/api/use-update-member";
 import { memberRole } from "@/features/members/types";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
+import { UserSkillsManager } from "@/features/members/components/user-skills-manager";
 
 export const MembersList = () => {
   const router = useRouter();
@@ -30,7 +31,10 @@ export const MembersList = () => {
     "This action is irreversible.",
     "destructive"
   );
-  const { data, isLoading } = useGetMembers({ workspaceId });
+  const { data, isLoading } = useGetMembers({
+    type: "workspace",
+    id: workspaceId,
+  });
   const { mutate: deleteMember, isPending: isDeletingMember } =
     useDeleteMember();
   const { mutate: updateMember, isPending: isUpdatingMember } =
@@ -79,12 +83,13 @@ export const MembersList = () => {
                   fallbackClassName="text-lg"
                   name={member.name}
                 />
-                <div className="flex flex-col">
+                <div className="flex flex-col flex-1">
                   <p className="text-sm font-medium">{member.name}</p>
                   <p className="text-xs text-muted-foreground">
                     {member.email}
                   </p>
                 </div>
+                <UserSkillsManager memberId={member.$id} memberName={member.name} />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button className="ml-auto" variant="secondary" size="icon">
