@@ -55,7 +55,7 @@ export const WorkspaceIdClient = () => {
     <div className="h-full flex flex-col space-y-4">
       <Analytics data={workspaceAnalytics} />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
-        <TaskList data={tasks.documents} total={tasks.total} />
+        <TaskList data={tasks.documents as TaskWithProject[]} total={tasks.total} />
         <ProjectList data={projects.documents} total={projects.total} />
         <MembersList data={members.documents as MemberWithUser[]} total={members.total} />
       </div>
@@ -94,7 +94,7 @@ export const TaskList = ({ data, total }: TaskListProps) => {
                       <div className="text-sm text-muted-foreground flex items-center">
                         <CalendarIcon className="size-3 mr-1" />
                         <span className="truncate">
-                          {formatDistanceToNow(new Date(task.dueDate))}
+                          {task.dueDate ? formatDistanceToNow(new Date(task.dueDate)) : "No due date"}
                         </span>
                       </div>
                     </div>
