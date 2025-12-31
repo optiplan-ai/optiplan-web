@@ -1,25 +1,25 @@
-import { DATABASE_ID, PROJECTS_ID } from "@/config";
-import { createSessionClient } from "@/lib/appwrite";
-import { getMember } from "../members/utils";
+import { getDocument, COLLECTIONS } from "@/lib/db-helpers";
 import { Project } from "./types";
+import { getMember } from "../members/utils";
 
 interface GetProjectProps {
   projectId: string;
+  userId: string;
 }
 
-export const getProject = async ({ projectId }: GetProjectProps) => {
+export const getProject = async ({ projectId, userId }: GetProjectProps) => {
   try {
-    const { databases, account } = await createSessionClient();
-    const user = await account.get();
-    const project = await databases.getDocument<Project>(
-      DATABASE_ID,
-      PROJECTS_ID,
+    const project = await getDocument<Project>(
+      COLLECTIONS.projects,
       projectId
     );
+    if (!project) {
+      return null;
+    }
+
     const member = await getMember({
-      databases,
-      userid: user.$id,
       workspaceId: project.workspaceId,
+      userId,
     });
     if (!member) {
       return null;

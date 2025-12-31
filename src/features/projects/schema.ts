@@ -8,7 +8,9 @@ export const createProjectSchema = z.object({
       z.string().transform((value) => (value === "" ? undefined : value)),
     ])
     .optional(),
+  prompt: z.string().optional(),
   workspaceId: z.string(),
+  generation_type: z.enum(["manual", "ai_generated"]).optional(),
 });
 
 export const updateProjectSchema = z.object({
@@ -19,4 +21,5 @@ export const updateProjectSchema = z.object({
       z.string().transform((value) => (value === "" ? undefined : value)),
     ])
     .optional(),
+  prompt: z.string().optional(),
 });

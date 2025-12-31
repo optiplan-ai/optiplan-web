@@ -20,10 +20,12 @@ export const useSignup = () => {
     },
     onSuccess: () => {
       toast.success("Account created successfully");
-      router.refresh();
       queryClient.invalidateQueries({
         queryKey: ["current"],
       });
+      // Redirect to home page after successful signup
+      router.push("/");
+      router.refresh();
     },
     onError: () => {
       toast.error("Failed to create account");

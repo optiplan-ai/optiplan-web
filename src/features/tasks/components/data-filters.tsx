@@ -24,7 +24,8 @@ export const DataFilters = ({ hideProjectFilter }: DataFiltersProps) => {
     workspaceId,
   });
   const { data: members, isLoading: isLoadingMembers } = useGetMembers({
-    workspaceId,
+    type: "workspace",
+    id: workspaceId,
   });
   const isLoading = isLoadingProjects || isLoadingMembers;
   const projectOptions = projects?.documents.map((project) => ({
