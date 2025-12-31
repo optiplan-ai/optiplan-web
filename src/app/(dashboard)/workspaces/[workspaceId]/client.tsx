@@ -13,7 +13,7 @@ import { MemberWithUser } from "@/features/members/types";
 import { useGetProjects } from "@/features/projects/api/use-get-projects";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { useCreateProjectModal } from "@/features/projects/hooks/use-create-project-modal";
-import { Project } from "@/features/projects/types";
+import { ProjectWithApiResponse } from "@/features/projects/types";
 import { useGetTasks } from "@/features/tasks/api/use-get-tasks";
 import { useCreateTaskModal } from "@/features/tasks/hooks/use-create-task-modal";
 import { TaskWithProject } from "@/features/tasks/types";
@@ -56,7 +56,7 @@ export const WorkspaceIdClient = () => {
       <Analytics data={workspaceAnalytics} />
       <div className="grid grid-cols-1 xl:grid-cols-2 gap-4">
         <TaskList data={tasks.documents as TaskWithProject[]} total={tasks.total} />
-        <ProjectList data={projects.documents} total={projects.total} />
+        <ProjectList data={projects.documents as ProjectWithApiResponse[]} total={projects.total} />
         <MembersList data={members.documents as MemberWithUser[]} total={members.total} />
       </div>
     </div>
@@ -121,7 +121,7 @@ export const TaskList = ({ data, total }: TaskListProps) => {
 };
 
 interface ProjectListProps {
-  data: Project[];
+  data: ProjectWithApiResponse[];
   total: number;
 }
 
