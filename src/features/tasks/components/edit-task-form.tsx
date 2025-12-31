@@ -233,9 +233,15 @@ export const EditTaskForm = ({
                       ...initialValues, 
                       $id: initialValues.$id, 
                       id: initialValues.id,
+                      name: initialValues.name ?? "",
+                      status: initialValues.status ?? TaskStatus.TODO,
+                      workspaceId: initialValues.workspaceId ?? "",
+                      assigneeId: initialValues.assigneeId ?? "",
+                      position: initialValues.position ?? 0,
+                      dueDate: initialValues.dueDate ?? "",
                       createdAt: initialValues.createdAt ? new Date(initialValues.createdAt) : new Date(),
                       updatedAt: initialValues.updatedAt ? new Date(initialValues.updatedAt) : new Date(),
-                    } as Task}
+                    } as unknown as Task}
                     memberOptions={memberOptions}
                   />
                 </>
