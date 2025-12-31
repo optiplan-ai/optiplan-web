@@ -25,6 +25,19 @@ export type Task = {
   updatedAt: Date;
 };
 
-export type TaskWithProject = Task & {
-  project: (Omit<Project, "id" | "createdAt" | "updatedAt"> & { $id: string; createdAt?: string; updatedAt?: string }) | null;
+export type TaskWithProject = {
+  $id?: string;
+  name?: string;
+  status?: TaskStatus;
+  workspaceId?: string;
+  assigneeId?: string;
+  projectId?: string;
+  position?: number;
+  dueDate?: string;
+  description?: string;
+  dependsOn?: string[];
+  aiSuggestedAssignees?: string[];
+  createdAt?: string;
+  updatedAt?: string;
+  project: (Omit<Partial<Project>, "id" | "createdAt" | "updatedAt"> & { $id: string; createdAt?: string; updatedAt?: string }) | null;
 };
