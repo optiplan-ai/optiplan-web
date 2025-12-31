@@ -13,3 +13,22 @@ export type MemberWithUser = {
   name: string;
   email: string;
 };
+
+export type UserSkillFormData = {
+  name: string;
+  category: string;
+  experience_years: number;
+  proficiency_score: number;
+};
+
+export type UserSkillDocument = {
+  $id: string;
+  name: string;
+  category: string;
+  experience_years: number;
+  proficiency_score: number;
+  createdAt?: string;
+  updatedAt?: string;
+  workspaceId?: string;
+  memberId?: string;
+};
