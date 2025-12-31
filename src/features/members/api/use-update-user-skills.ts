@@ -10,7 +10,14 @@ export const useUpdateUserSkills = (memberId: string) => {
     mutationFn: async (skills: UserSkill[]) => {
       const response = await client.api.members[":memberId"]["skills"].$post({
         param: { memberId },
-        json: { skills },
+        json: {
+          skills: skills.map((skill) => ({
+            name: skill.name,
+            category: skill.category,
+            experience_years: skill.experienceYears,
+            proficiency_score: skill.proficiencyScore,
+          })),
+        },
       });
       if (!response.ok) {
         throw new Error("Failed to update user skills");
