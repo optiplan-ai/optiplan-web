@@ -14,3 +14,14 @@ export type Project = {
   createdAt: Date;
   updatedAt: Date;
 };
+
+export type ProjectWithApiResponse = {
+  $id: string;
+  name: string;
+  imageUrl?: string;
+  workspaceId: string;
+  generationType?: ProjectGenerationType;
+  prompt?: string;
+  createdAt?: string;
+  updatedAt?: string;
+};
