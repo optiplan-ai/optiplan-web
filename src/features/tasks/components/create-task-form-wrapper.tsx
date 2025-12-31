@@ -5,6 +5,11 @@ import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { Loader } from "lucide-react";
 import { CreateTaskForm } from "./create-task-form";
 
+export const unassignedMember = {
+  id: "unassigned",
+  name: "Unassigned",
+};
+
 interface CreateTaskFormWrapperProps {
   onCancel: () => void;
 }
@@ -17,17 +22,22 @@ export const CreateTaskFormWrapper = ({
     workspaceId,
   });
   const { data: members, isLoading: isLoadingMembers } = useGetMembers({
-    workspaceId,
+    type: "workspace",
+    id: workspaceId,
   });
-  const projectOptions = projects?.documents.map((project) => ({
-    id: project.$id,
-    name: project.name,
-    imageUrl: project.imageUrl,
-  }));
-  const memberOptions = members?.documents.map((member) => ({
-    id: member.$id,
-    name: member.name,
-  }));
+  const projectOptions = projects?.documents
+    .filter((project): project is NonNullable<typeof project> => project !== null)
+    .map((project) => ({
+      id: project.$id,
+      name: project.name,
+      imageUrl: project.imageUrl,
+    }));
+  const memberOptions = members?.documents
+    .filter((member): member is typeof member & { $id: string } => member.$id !== undefined)
+    .map((member) => ({
+      id: member.$id,
+      name: member.name,
+    }));
   const isLoading = isLoadingMembers || isLoadingProjects;
 
   if (isLoading) {
@@ -43,7 +53,7 @@ export const CreateTaskFormWrapper = ({
     <CreateTaskForm
       onCancel={onCancel}
       projectOptions={projectOptions ?? []}
-      memberOptions={memberOptions ?? []}
+      memberOptions={memberOptions ? [unassignedMember, ...memberOptions] : []}
     />
   );
 };
