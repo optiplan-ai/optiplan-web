@@ -1,0 +1,32 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  checks:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: pnpm/action-setup@v4
+        with:
+          version: 11
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: pnpm
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # TODO(phase-1): widen to the full workspace once apps/web is rebuilt —
+      # it currently carries pre-existing type errors from the old codebase.
+      - name: Typecheck (engine packages)
+        run: pnpm turbo run typecheck --filter="./packages/*"
+
+      - name: Unit tests
+        run: pnpm turbo run test --filter="./packages/*"

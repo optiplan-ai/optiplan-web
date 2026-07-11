@@ -1,0 +1,25 @@
+# Windrose — local development / self-hosting
+#
+# Dev:  docker compose up -d        (starts Postgres with pgvector)
+# The app container ships in the packaging phase; until then run the web app
+# with `pnpm dev` against this database.
+services:
+  db:
+    image: pgvector/pgvector:pg16
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: windrose
+      POSTGRES_PASSWORD: windrose
+      POSTGRES_DB: windrose
+    ports:
+      - "5432:5432"
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U windrose -d windrose"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+volumes:
+  db-data:

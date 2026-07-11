@@ -1,86 +1,66 @@
-# OptiPlan - Project Manager
+<p align="center">
+  <img src="branding/logo.svg" width="120" alt="Windrose logo — a compass rose with a coral north point" />
+</p>
 
-## Description
+<h1 align="center">Windrose</h1>
 
-**OptiPlan** is a comprehensive project management tool designed to help teams streamline their workflows and manage tasks effectively. Built with the latest technologies, it ensures a smooth and seamless user experience by avoiding server components for data fetching and leveraging optimized client-side techniques.
+<p align="center"><em>Project management that forecasts.</em></p>
 
-## Tech Stack
+<p align="center">
+  A free, self-hostable project management tool with a forecasting engine that
+  others charge enterprise money for: probabilistic delivery dates, flow
+  analytics, critical-path scheduling, and optimal AI-assisted assignment —
+  trained on your team's own data, no vendor lock-in.
+</p>
 
-The project utilizes a modern and powerful stack:
+---
 
-- **React 18**: For building dynamic and interactive user interfaces.
-- **Next.js 15**: For server-side rendering and optimized web applications.
-- **Hono**: A fast web framework for API routes.
-- **Better Auth**: Modern authentication library with PostgreSQL adapter.
-- **Neon PostgreSQL**: Serverless PostgreSQL database.
-- **Drizzle ORM**: Type-safe SQL ORM for database operations.
+> **Status: under heavy rebuild** (formerly *OptiPlan AI*). The full design and
+> roadmap live in [REBUILD_PLAN.md](REBUILD_PLAN.md). Phase 0 (repo reset) is done;
+> the app in `apps/web` is being rebuilt phase by phase.
 
-## Key Libraries and Features
+## Why Windrose
 
-- **nuqs**: Used for utility functions and query handling.
-- **TypeScript (TS)**: Ensures type safety and better developer experience.
-- **zod** and **zodresolver**: For schema validation and form handling.
-- **shadcn**: A design system for building accessible components.
-- **TanStack Query**: For efficient and declarative data fetching.
-- **RPC**: Remote Procedure Calls for streamlined client-server communication.
-- **Hello Pangea DnD**: For a smooth and interactive Kanban board implementation.
+A *wind rose* is the navigator's chart of probable wind directions — probability
+and direction on one instrument. Windrose does the same for projects: it doesn't
+just track work, it tells you where the project is heading and how confident you
+should be.
 
-## Setup
+- **Probabilistic forecasts** — "P50 ship date Aug 12, P85 Aug 29", from Monte Carlo
+  simulation over your dependency graph, seeded by your team's real cycle times.
+- **Flow analytics** — cumulative flow, cycle-time scatterplots, aging WIP.
+- **Critical path** — CPM slack and auto-scheduling on an interactive timeline.
+- **The Dead-Reckoning Engine** — per-workspace models (hierarchical Bayes,
+  conformal calibration, Thompson-sampling assignment) that train continuously on
+  your own event stream. Seeded from public data, personalized with use, and
+  provably calibrated.
+- **Bring-your-own AI** — Ollama (fully local), Gemini, or Groq free tiers for the
+  LLM-perimeter features. Everything else is local math and keeps working offline.
 
-### Prerequisites
+## Repository layout
 
-- Node.js 18+ 
-- A Neon PostgreSQL database
-- Better Auth secret key
-
-### Environment Variables
-
-Create a `.env.local` file in the `optiplan` directory:
-
-```bash
-# Database
-DATABASE_URL=your_neon_postgresql_connection_string
-
-# Better Auth
-BETTER_AUTH_SECRET=your_secret_key_here
-BETTER_AUTH_URL=http://localhost:3000
-
-# AI Service
-NEXT_PUBLIC_AI_SERVICE_URL=http://localhost:8000
-
-# App URL
-NEXT_PUBLIC_APP_URL=http://localhost:3000
+```
+apps/web/         Next.js app (UI + Hono API)
+packages/core/    Scheduling engine: DAG, CPM, Monte Carlo, assignment (pure TS)
+packages/learn/   Dead-Reckoning Engine: trained models (pure TS)
+branding/         Logo and brand assets
+docker-compose.yml  Postgres + pgvector for dev / self-hosting
 ```
 
-### Installation
+## Development
 
-1. Install dependencies:
 ```bash
-npm install
+docker compose up -d      # Postgres 16 + pgvector on :5432
+pnpm install
+pnpm test                 # engine unit tests
+pnpm typecheck
+pnpm dev                  # Next.js dev server
 ```
 
-2. Run database migrations (if using Drizzle migrations):
-```bash
-npm run db:push  # or your migration command
-```
+Copy `apps/web/.env.example` to `apps/web/.env.local` and fill in values
+(see the plan for the target configuration).
 
-3. Run the development server:
-```bash
-npm run dev
-```
+## Self-hosting
 
-## Optimizations
-
-The application has been **refactored to avoid relying on server components** for data fetching. This change ensures:
-
-- A smoother and faster user experience.
-- Improved handling of state and UI updates.
-- Better control over caching and performance.
-
-## Database Schema
-
-The application uses Drizzle ORM with Neon PostgreSQL. Schema definitions are in `src/lib/db/schema/`.
-
-## Authentication
-
-Better Auth handles authentication with email/password. OAuth providers can be configured through Better Auth.
+Target: any balanced machine (~2 vCPU / 4 GB). One `docker compose up -d` deploy
+ships in the packaging phase of the roadmap.

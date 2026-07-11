@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 160" width="640" height="160" style="color:#1B2A4A">
+  <!-- Windrose wordmark. Text uses a system font stack; outline the text
+       (convert to paths) before using in contexts where fonts may differ. -->
+  <g transform="translate(10 8) scale(0.5625)">
+    <circle cx="128" cy="128" r="117" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+    <circle cx="128" cy="128" r="108" fill="none" stroke="currentColor" stroke-width="3"
+            stroke-dasharray="1.6 7.83" opacity="0.5"/>
+    <g opacity="0.9">
+      <g transform="rotate(45 128 128)">
+        <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+        <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+      </g>
+      <g transform="rotate(135 128 128)">
+        <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+        <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+      </g>
+      <g transform="rotate(225 128 128)">
+        <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+        <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+      </g>
+      <g transform="rotate(315 128 128)">
+        <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+        <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+      </g>
+    </g>
+    <g transform="rotate(90 128 128)">
+      <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+      <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <g transform="rotate(180 128 128)">
+      <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+      <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <g transform="rotate(270 128 128)">
+      <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+      <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <path d="M128 16 L143 113 L128 128 Z" fill="#E4572E"/>
+    <path d="M128 16 L113 113 L128 128 Z" fill="#E4572E" opacity="0.55"/>
+    <circle cx="128" cy="128" r="7.5" fill="none" stroke="currentColor" stroke-width="4"/>
+  </g>
+  <text x="172" y="103" font-family="'Avenir Next','Segoe UI','Helvetica Neue',Arial,sans-serif"
+        font-size="64" letter-spacing="0.5" fill="currentColor"><tspan font-weight="700">wind</tspan><tspan font-weight="400">rose</tspan></text>
+  <text x="174" y="132" font-family="'Cascadia Mono',Consolas,'Courier New',monospace"
+        font-size="15" letter-spacing="3.5" fill="currentColor" opacity="0.65">PROJECT MANAGEMENT THAT FORECASTS</text>
+</svg>

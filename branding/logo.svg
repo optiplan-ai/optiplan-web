@@ -1,0 +1,47 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256" width="256" height="256" style="color:#1B2A4A">
+  <!-- Windrose mark: compass rose, coral north point. Rose body uses currentColor
+       so it can be recolored (e.g. light-on-dark) by setting `color` on the host. -->
+  <circle cx="128" cy="128" r="117" fill="none" stroke="currentColor" stroke-width="1.5" opacity="0.55"/>
+  <circle cx="128" cy="128" r="108" fill="none" stroke="currentColor" stroke-width="3"
+          stroke-dasharray="1.6 7.83" opacity="0.5"/>
+
+  <!-- Intercardinal points (NE SE SW NW) -->
+  <g opacity="0.9">
+    <g transform="rotate(45 128 128)">
+      <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+      <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <g transform="rotate(135 128 128)">
+      <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+      <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <g transform="rotate(225 128 128)">
+      <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+      <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+    <g transform="rotate(315 128 128)">
+      <path d="M128 60 L138 118 L128 128 Z" fill="currentColor"/>
+      <path d="M128 60 L118 118 L128 128 Z" fill="currentColor" opacity="0.45"/>
+    </g>
+  </g>
+
+  <!-- Cardinal points: E S W in ink -->
+  <g transform="rotate(90 128 128)">
+    <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+    <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+  </g>
+  <g transform="rotate(180 128 128)">
+    <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+    <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+  </g>
+  <g transform="rotate(270 128 128)">
+    <path d="M128 16 L143 113 L128 128 Z" fill="currentColor"/>
+    <path d="M128 16 L113 113 L128 128 Z" fill="currentColor" opacity="0.45"/>
+  </g>
+
+  <!-- North point: coral, the direction that matters -->
+  <path d="M128 16 L143 113 L128 128 Z" fill="#E4572E"/>
+  <path d="M128 16 L113 113 L128 128 Z" fill="#E4572E" opacity="0.55"/>
+
+  <circle cx="128" cy="128" r="7.5" fill="none" stroke="currentColor" stroke-width="4"/>
+</svg>
