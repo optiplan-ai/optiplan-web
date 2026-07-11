@@ -28,7 +28,7 @@ import { MembersAvatar } from "@/features/members/components/members-avatar";
 import { Task, TaskStatus, TaskWithProject } from "../types";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { useUpdateTask } from "../api/use-update-task";
-import { createTaskSchema } from "../schemas";
+import { taskFormSchema, type TaskFormValues } from "../schemas";
 import { AISuggestionsPanel } from "./ai-suggestions-panel";
 
 interface EditTaskFormProps {
@@ -45,12 +45,14 @@ export const EditTaskForm = ({
   initialValues,
 }: EditTaskFormProps) => {
   const { mutate, isPending } = useUpdateTask();
-  const form = useForm<z.infer<typeof createTaskSchema>>({
-    resolver: zodResolver(
-      createTaskSchema.omit({ workspaceId: true, description: true })
-    ),
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
     defaultValues: {
-      ...initialValues,
+      name: initialValues.name,
+      status: initialValues.status,
+      projectId: initialValues.projectId ?? undefined,
+      assigneeId: initialValues.assigneeId,
+      description: initialValues.description ?? undefined,
       dueDate: initialValues.dueDate
         ? new Date(initialValues.dueDate)
         : undefined,
@@ -63,9 +65,9 @@ export const EditTaskForm = ({
     initialValues.projectId = "No project assigned";
   }
 
-  const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
+  const onSubmit = (values: TaskFormValues) => {
     mutate(
-      { json: values, param: { taskId: initialValues.$id ?? initialValues.id } },
+      { json: values, param: { taskId: initialValues.id } },
       {
         onSuccess: () => {
           form.reset();
@@ -225,23 +227,19 @@ export const EditTaskForm = ({
                   </FormItem>
                 )}
               />
-              {initialValues.projectId && initialValues.$id && (
+              {initialValues.projectId && initialValues.id && (
                 <>
                   <DottedSeparator />
                   <AISuggestionsPanel
-                    task={{ 
-                      ...initialValues, 
-                      $id: initialValues.$id, 
-                      id: initialValues.id,
+                    task={{
+                      ...initialValues,
                       name: initialValues.name ?? "",
                       status: initialValues.status ?? TaskStatus.TODO,
                       workspaceId: initialValues.workspaceId ?? "",
                       assigneeId: initialValues.assigneeId ?? "",
                       position: initialValues.position ?? 0,
                       dueDate: initialValues.dueDate ?? "",
-                      createdAt: initialValues.createdAt ? new Date(initialValues.createdAt) : new Date(),
-                      updatedAt: initialValues.updatedAt ? new Date(initialValues.updatedAt) : new Date(),
-                    } as unknown as Task}
+                    }}
                     memberOptions={memberOptions}
                   />
                 </>

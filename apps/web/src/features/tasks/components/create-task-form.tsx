@@ -18,7 +18,7 @@ import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useCreateTask } from "../api/use-create-task";
-import { createTaskSchema } from "../schemas";
+import { taskFormSchema, type TaskFormValues } from "../schemas";
 import { DatePicker } from "@/components/date-picker";
 import {
   Select,
@@ -46,16 +46,16 @@ export const CreateTaskForm = ({
   const workspaceId = useWorkspaceId();
   const projectId = useProjectId();
   const { mutate, isPending } = useCreateTask();
-  const form = useForm<z.infer<typeof createTaskSchema>>({
-    resolver: zodResolver(createTaskSchema.omit({ workspaceId: true })),
+  const form = useForm<TaskFormValues>({
+    resolver: zodResolver(taskFormSchema),
     defaultValues: {
-      workspaceId,
+      name: "",
       projectId,
       status: TaskStatus.TODO,
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createTaskSchema>) => {
+  const onSubmit = (values: TaskFormValues) => {
     mutate(
       { json: { ...values, workspaceId } },
       {

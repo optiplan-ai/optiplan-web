@@ -18,7 +18,7 @@ export const TaskDescription = ({ task }: TaskDescriptionProps) => {
     mutate(
       {
         json: { description: value },
-        param: { taskId: task.$id },
+        param: { taskId: task.id },
       },
       {
         onSuccess: () => {

@@ -24,10 +24,10 @@ export const Projects = () => {
         />
       </div>
       {data?.documents.map((project) => {
-        const href = `/workspaces/${workspaceId}/projects/${project.$id}`;
+        const href = `/workspaces/${workspaceId}/projects/${project.id}`;
         const isActive = pathname === href;
         return (
-          <Link href={href} key={project.$id}>
+          <Link href={href} key={project.id}>
             <div
               className={cn(
                 "flex items-center gap-2.5 p-2.5 rounded-md cursor-pointer",
@@ -36,7 +36,7 @@ export const Projects = () => {
                   : "text-black hover:bg-slate-300 transition"
               )}
             >
-              <ProjectAvatar image={project.imageUrl} name={project.name} />
+              <ProjectAvatar image={project.imageUrl ?? undefined} name={project.name} />
               <span className="truncate">{project.name}</span>
             </div>
           </Link>

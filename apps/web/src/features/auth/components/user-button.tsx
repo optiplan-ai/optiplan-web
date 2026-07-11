@@ -10,7 +10,7 @@ import {
 import { useLogout } from "../api/use-logout";
 import { useCurrent } from "../api/use-current";
 import { Loader, LogOut } from "lucide-react";
-import { DottedSeparator1 } from "@/components/dotted-separator copy";
+import { DottedSeparator1 } from "@/components/dotted-separator-alt";
 
 export const UserButton = () => {
   const { data: user, isLoading } = useCurrent();

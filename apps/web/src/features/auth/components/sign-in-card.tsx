@@ -46,7 +46,7 @@ export const SignInCard = () => {
       <CardHeader className="flex items-center justify-center text-center p-7">
         <CardTitle className="text-2xl">Welcome back</CardTitle>
         <CardDescription>
-          Sign in to your account to continue to Project Manager.
+          Sign in to your account to continue to Windrose.
         </CardDescription>
       </CardHeader>
       <div className="px-7">

@@ -2,7 +2,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { createWorkspaceSchema, updateWorkspaceSchema } from "../schemas";
 import { sessionMiddleware } from "@/lib/session-middleware";
-import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments, toApiResponse, toApiResponseArray } from "@/lib/db-helpers";
+import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments } from "@/lib/db-helpers";
 import { MemberRole, Member } from "@/lib/models/Member";
 import { Workspace } from "@/lib/models/Workspace";
 import { generateInviteCode } from "@/lib/utils";
@@ -17,7 +17,7 @@ import { eq, inArray, and, gte, lte, ne } from "drizzle-orm";
 const app = new Hono()
   .get("/", sessionMiddleware, async (c) => {
     const user = c.get("user");
-    const userId = user.$id;
+    const userId = user.id;
 
     const membersList = await listDocuments<Member>(COLLECTIONS.members, {
       userId: userId,
@@ -35,7 +35,7 @@ const app = new Hono()
       return c.json({ data: { documents: [], total: 0 } });
     }
 
-    const workspacesList = await listDocuments(COLLECTIONS.workspaces, {
+    const workspacesList = await listDocuments<Workspace>(COLLECTIONS.workspaces, {
       id: { $in: workspaceIds },
     }, {
       sort: { createdAt: -1 },
@@ -43,7 +43,7 @@ const app = new Hono()
     
     return c.json({ 
       data: {
-        documents: toApiResponseArray(workspacesList.documents),
+        documents: workspacesList.documents,
         total: workspacesList.total,
       }
     });
@@ -54,7 +54,7 @@ const app = new Hono()
     sessionMiddleware,
     async (c) => {
       const user = c.get("user");
-      const userId = user.$id;
+      const userId = user.id;
 
       const { name, image } = c.req.valid("form");
       let uploadedImageUrl: string | undefined = undefined;
@@ -87,7 +87,7 @@ const app = new Hono()
         role: MemberRole.ADMIN,
       });
 
-      return c.json({ data: toApiResponse(workspace) });
+      return c.json({ data: workspace });
     }
   )
   .patch(
@@ -101,7 +101,7 @@ const app = new Hono()
       
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       
       if (!member || member.role !== MemberRole.ADMIN) {
@@ -129,13 +129,17 @@ const app = new Hono()
         updateData.imageUrl = uploadedImageUrl;
       }
       
-      const workspace = await updateDocument(
+      const workspace = await updateDocument<Workspace>(
         COLLECTIONS.workspaces,
         workspaceId,
         updateData
       );
-      
-      return c.json({ data: toApiResponse(workspace) });
+
+      if (!workspace) {
+        return c.json({ error: "Workspace not found" }, 404);
+      }
+
+      return c.json({ data: workspace });
     }
   )
   .delete("/:workspaceId", sessionMiddleware, async (c) => {
@@ -144,7 +148,7 @@ const app = new Hono()
     
     const member = await getMember({
       workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     
     if (!member || member.role !== MemberRole.ADMIN) {
@@ -152,7 +156,68 @@ const app = new Hono()
     }
     
     await deleteDocument(COLLECTIONS.workspaces, workspaceId);
-    return c.json({ data: { $id: workspaceId } });
+    return c.json({ data: { id: workspaceId } });
+  })
+  .post(
+    "/:workspaceId/join",
+    sessionMiddleware,
+    zValidator("json", z.object({ code: z.string() })),
+    async (c) => {
+      const user = c.get("user");
+      const { workspaceId } = c.req.param();
+      const { code } = c.req.valid("json");
+
+      const existingMember = await getMember({ workspaceId, userId: user.id });
+      if (existingMember) {
+        return c.json({ error: "Already a member" }, 400);
+      }
+
+      const workspace = await getDocument<Workspace>(COLLECTIONS.workspaces, workspaceId);
+      if (!workspace) {
+        return c.json({ error: "Workspace not found" }, 404);
+      }
+      if (workspace.inviteCode !== code) {
+        return c.json({ error: "Invalid invite code" }, 400);
+      }
+
+      await createDocument(COLLECTIONS.members, {
+        workspaceId,
+        userId: user.id,
+        role: MemberRole.MEMBER,
+      });
+
+      return c.json({ data: workspace });
+    }
+  )
+  .post("/:workspaceId/reset-invite-code", sessionMiddleware, async (c) => {
+    const user = c.get("user");
+    const { workspaceId } = c.req.param();
+
+    const member = await getMember({ workspaceId, userId: user.id });
+    if (!member || member.role !== MemberRole.ADMIN) {
+      return c.json({ error: "Unauthorized" }, 401);
+    }
+
+    const workspace = await updateDocument<Workspace>(COLLECTIONS.workspaces, workspaceId, {
+      inviteCode: generateInviteCode(6),
+    });
+    if (!workspace) {
+      return c.json({ error: "Workspace not found" }, 404);
+    }
+
+    return c.json({ data: workspace });
+  })
+  .get("/:workspaceId/info", sessionMiddleware, async (c) => {
+    const { workspaceId } = c.req.param();
+
+    const workspace = await getDocument<Workspace>(COLLECTIONS.workspaces, workspaceId);
+    if (!workspace) {
+      return c.json({ error: "Workspace not found" }, 404);
+    }
+
+    return c.json({
+      data: { id: workspace.id, name: workspace.name, imageUrl: workspace.imageUrl },
+    });
   })
   .get("/:workspaceId/analytics", sessionMiddleware, async (c) => {
     const user = c.get("user");
@@ -160,7 +225,7 @@ const app = new Hono()
     
     const member = await getMember({
       workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     
     if (!member) {
@@ -334,15 +399,18 @@ const app = new Hono()
     
     const member = await getMember({
       workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);
     }
     
-    const workspace = await getDocument(COLLECTIONS.workspaces, workspaceId);
-    return c.json({ data: toApiResponse(workspace) });
+    const workspace = await getDocument<Workspace>(COLLECTIONS.workspaces, workspaceId);
+    if (!workspace) {
+      return c.json({ error: "Workspace not found" }, 404);
+    }
+    return c.json({ data: workspace });
   });
 
 export default app;

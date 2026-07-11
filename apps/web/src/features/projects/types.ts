@@ -3,25 +3,17 @@ export enum ProjectGenerationType {
   AI_GENERATED = "ai_generated",
 }
 
+/** Project as serialized over the API (dates become ISO strings in JSON). */
 export type Project = {
-  $id: string;
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   workspaceId: string;
-  generationType?: ProjectGenerationType;
-  prompt?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  generationType?: ProjectGenerationType | null;
+  prompt?: string | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type ProjectWithApiResponse = {
-  $id: string;
-  name: string;
-  imageUrl?: string;
-  workspaceId: string;
-  generationType?: ProjectGenerationType;
-  prompt?: string;
-  createdAt?: string;
-  updatedAt?: string;
-};
+/** @deprecated use Project */
+export type ProjectWithApiResponse = Project;

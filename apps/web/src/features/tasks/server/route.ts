@@ -6,7 +6,7 @@ import { getMember } from "@/features/members/utils";
 import { Member } from "@/lib/models/Member";
 import { z } from "zod";
 import { Task, TaskStatus } from "../types";
-import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments, toApiResponse } from "@/lib/db-helpers";
+import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments } from "@/lib/db-helpers";
 import { Project } from "@/features/projects/types";
 import { getUserById } from "@/lib/auth";
 import { db } from "@/lib/db";
@@ -26,13 +26,13 @@ const app = new Hono()
     }
     const member = await getMember({
       workspaceId: task.workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);
     }
     await deleteDocument(COLLECTIONS.tasks, taskId);
-    return c.json({ data: { $id: taskId } });
+    return c.json({ data: { id: taskId } });
   })
   .get(
     "/",
@@ -54,7 +54,7 @@ const app = new Hono()
         c.req.valid("query");
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -98,7 +98,6 @@ const app = new Hono()
           const userData = await getUserById(assigneeId);
           return {
             id: assigneeId,
-            $id: assigneeId,
             name: userData?.name || userData?.email || "Unknown",
             email: userData?.email || "",
           };
@@ -113,8 +112,8 @@ const app = new Hono()
           ? assignees.find((a) => a.id === task.assigneeId)
           : null;
         return {
-          ...toApiResponse(task),
-          project: project ? toApiResponse(project) : null,
+          ...task,
+          project: project ? project : null,
           assignee,
         };
       });
@@ -132,7 +131,7 @@ const app = new Hono()
         c.req.valid("json");
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -196,7 +195,7 @@ const app = new Hono()
         position: newPosition,
         description: description || undefined,
       });
-      return c.json({ data: toApiResponse(task) });
+      return c.json({ data: task });
     }
   )
   .patch(
@@ -217,7 +216,7 @@ const app = new Hono()
       }
       const member = await getMember({
         workspaceId: existingTask.workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -265,12 +264,15 @@ const app = new Hono()
       }
       if (description !== undefined) updateData.description = description;
 
-      const task = await updateDocument(
+      const task = await updateDocument<Task>(
         COLLECTIONS.tasks,
         taskId,
         updateData
       );
-      return c.json({ data: toApiResponse(task) });
+      if (!task) {
+        return c.json({ error: "Task not found" }, 404);
+      }
+      return c.json({ data: task });
     }
   )
   .get("/:taskId", sessionMiddleware, async (c) => {
@@ -287,7 +289,7 @@ const app = new Hono()
 
     const currentMember = await getMember({
       workspaceId: task.workspaceId,
-      userId: currentUser.$id,
+      userId: currentUser.id,
     });
     if (!currentMember) {
       return c.json({ error: "Unauthorized" }, 401);
@@ -303,15 +305,14 @@ const app = new Hono()
     const assigneeUser = task.assigneeId ? await getUserById(task.assigneeId) : null;
     const assignee = assigneeUser ? {
       id: task.assigneeId!,
-      $id: task.assigneeId!,
       name: assigneeUser.name || assigneeUser.email || "Unknown",
       email: assigneeUser.email || "",
     } : null;
 
     return c.json({
       data: {
-        ...toApiResponse(task),
-        project: project ? toApiResponse(project) : null,
+        ...task,
+        project: project ? project : null,
         assignee,
       },
     });
@@ -324,7 +325,7 @@ const app = new Hono()
       z.object({
         tasks: z.array(
           z.object({
-            $id: z.string(),
+            id: z.string(),
             status: z.nativeEnum(TaskStatus),
             position: z.number().int().positive().min(1000).max(1_000_000),
           })
@@ -334,7 +335,7 @@ const app = new Hono()
     async (c) => {
       const user = c.get("user");
       const { tasks: tasksToUpdate } = c.req.valid("json");
-      const taskIds = tasksToUpdate.map((t) => t.$id);
+      const taskIds = tasksToUpdate.map((t) => t.id);
 
       const existingTasks = await db.select().from(tasks)
         .where(inArray(tasks.id, taskIds));
@@ -351,7 +352,7 @@ const app = new Hono()
       const workspaceId = Array.from(workspaceIds)[0];
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -359,15 +360,15 @@ const app = new Hono()
 
       const updatedTasks = await Promise.all(
         tasksToUpdate.map(async (task) => {
-          const { $id, status, position } = task;
-          return updateDocument<Task>(COLLECTIONS.tasks, $id, {
+          const { id, status, position } = task;
+          return updateDocument<Task>(COLLECTIONS.tasks, id, {
             status,
             position,
           });
         })
       );
 
-      return c.json({ data: updatedTasks.map(toApiResponse) });
+      return c.json({ data: updatedTasks });
     }
   );
 

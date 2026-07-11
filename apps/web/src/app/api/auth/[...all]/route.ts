@@ -181,7 +181,6 @@ export async function GET(request: NextRequest) {
           image: result.user.image ?? null,
           createdAt: result.user.createdAt,
           updatedAt: result.user.updatedAt,
-          $id: result.user.id,
         },
       });
     } catch (error: any) {

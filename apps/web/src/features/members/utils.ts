@@ -9,7 +9,7 @@ export async function getMember({
   workspaceId?: string;
   userId: string;
   projectId?: string;
-}): Promise<(Member & { id: string; $id: string }) | null> {
+}): Promise<(Member & { id: string }) | null> {
   const filter: any = {
     userId: userId,
   };
@@ -30,9 +30,5 @@ export async function getMember({
     return null;
   }
 
-  const member = result.documents[0];
-  return {
-    ...member,
-    $id: member.id,
-  };
+  return result.documents[0];
 }

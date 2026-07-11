@@ -23,10 +23,8 @@ jobs:
       - name: Install dependencies
         run: pnpm install --frozen-lockfile
 
-      # TODO(phase-1): widen to the full workspace once apps/web is rebuilt —
-      # it currently carries pre-existing type errors from the old codebase.
-      - name: Typecheck (engine packages)
-        run: pnpm turbo run typecheck --filter="./packages/*"
+      - name: Typecheck
+        run: pnpm typecheck
 
       - name: Unit tests
-        run: pnpm turbo run test --filter="./packages/*"
+        run: pnpm test

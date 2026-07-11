@@ -3,7 +3,7 @@ import { zValidator } from "@hono/zod-validator";
 import { Hono } from "hono";
 import { z } from "zod";
 import { getMember } from "../utils";
-import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments, toApiResponse, toApiResponseArray, toObjectId } from "@/lib/db-helpers";
+import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments } from "@/lib/db-helpers";
 import { MemberRole, Member } from "@/lib/models/Member";
 import { Workspace } from "@/lib/models/Workspace";
 import { getUserById } from "@/lib/auth";
@@ -26,7 +26,7 @@ const app = new Hono()
       const member = await getMember({
         ...(workspaceId && { workspaceId }),
         ...(projectId && { projectId }),
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -34,11 +34,11 @@ const app = new Hono()
       let members;
       if (workspaceId) {
         members = await listDocuments<Member>(COLLECTIONS.members, {
-          workspaceId: toObjectId(workspaceId),
+          workspaceId: workspaceId,
         });
       } else if (projectId) {
         members = await listDocuments<Member>(COLLECTIONS.members, {
-          projectId: toObjectId(projectId),
+          projectId: projectId,
         });
       } else {
         return c.json(
@@ -51,7 +51,7 @@ const app = new Hono()
         members.documents.map(async (member) => {
           const userDoc = await getUserById(member.userId?.toString() || "");
           return {
-            ...toApiResponse(member),
+            ...member,
             name: userDoc?.name || userDoc?.email || "Unknown",
             email: userDoc?.email || "",
           };
@@ -72,13 +72,13 @@ const app = new Hono()
     });
     const member = await getMember({
       workspaceId: memberToDelete.workspaceId.toString(),
-      userId: user.$id,
+      userId: user.id,
     });
     const workspace = await getDocument<Workspace>(COLLECTIONS.workspaces, memberToDelete.workspaceId);
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-    if (member.$id !== memberToDelete.id && member.role !== MemberRole.ADMIN) {
+    if (member.id !== memberToDelete.id && member.role !== MemberRole.ADMIN) {
       return c.json({ error: "Unauthorized" }, 401);
     }
     if (workspace && workspace.userId.toString() === memberToDelete.userId.toString()) {
@@ -91,7 +91,7 @@ const app = new Hono()
       );
     }
     await deleteDocument(COLLECTIONS.members, memberId);
-      return c.json({ data: { $id: memberToDelete.id } });
+      return c.json({ data: { id: memberToDelete.id } });
   })
   .patch(
     "/:memberId",
@@ -110,7 +110,7 @@ const app = new Hono()
       });
       const member = await getMember({
         workspaceId: memberToUpdate.workspaceId.toString(),
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -118,13 +118,13 @@ const app = new Hono()
       if (member.role !== MemberRole.ADMIN) {
         return c.json({ error: "Unauthorized" }, 401);
       }
-      if (memberToUpdate.id === member.$id && role !== MemberRole.ADMIN) {
+      if (memberToUpdate.id === member.id && role !== MemberRole.ADMIN) {
         return c.json(
           { error: "Cannot downgrade the owner of the workspace" },
           400
         );
       }
-      if (memberToUpdate.id === member.$id && role === MemberRole.ADMIN) {
+      if (memberToUpdate.id === member.id && role === MemberRole.ADMIN) {
         return c.json({ error: "You are already an administrator" }, 409);
       }
       if (allMembersInWorkspace.total === 1) {
@@ -136,7 +136,7 @@ const app = new Hono()
       const updated = await updateDocument<Member>(COLLECTIONS.members, memberId, {
         role,
       });
-      return c.json({ data: toApiResponse(updated) });
+      return c.json({ data: updated });
     }
   )
   .get("/:memberId/skills", sessionMiddleware, async (c) => {
@@ -148,19 +148,19 @@ const app = new Hono()
     }
     const currentMember = await getMember({
       workspaceId: member.workspaceId.toString(),
-      userId: user.$id,
+      userId: user.id,
     });
     if (!currentMember) {
       return c.json({ error: "Unauthorized" }, 401);
     }
     // Users can only view their own skills, or admins can view anyone's
-    if (currentMember.$id !== member.id && currentMember.role !== MemberRole.ADMIN) {
+    if (currentMember.id !== member.id && currentMember.role !== MemberRole.ADMIN) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-    const skills = await listDocuments(COLLECTIONS.userSkills, {
-      memberId: toObjectId(memberId),
+    const skills = await listDocuments<UserSkill>(COLLECTIONS.userSkills, {
+      memberId: memberId,
     });
-    return c.json({ data: { documents: toApiResponseArray(skills.documents), total: skills.total } });
+    return c.json({ data: { documents: skills.documents, total: skills.total } });
   })
   .post(
     "/:memberId/skills",
@@ -188,18 +188,18 @@ const app = new Hono()
       }
       const currentMember = await getMember({
         workspaceId: member.workspaceId.toString(),
-        userId: user.$id,
+        userId: user.id,
       });
       if (!currentMember) {
         return c.json({ error: "Unauthorized" }, 401);
       }
       // Users can only update their own skills, or admins can update anyone's
-      if (currentMember.$id !== member.id && currentMember.role !== MemberRole.ADMIN) {
+      if (currentMember.id !== member.id && currentMember.role !== MemberRole.ADMIN) {
         return c.json({ error: "Unauthorized" }, 401);
       }
       // Delete existing skills
       const existingSkills = await listDocuments(COLLECTIONS.userSkills, {
-        memberId: toObjectId(memberId),
+        memberId: memberId,
       });
       await Promise.all(
         existingSkills.documents.map((skill) =>
@@ -210,7 +210,7 @@ const app = new Hono()
       const newSkills = await Promise.all(
         skills.map((skill) =>
           createDocument(COLLECTIONS.userSkills, {
-            memberId: toObjectId(memberId)!,
+            memberId: memberId!,
             workspaceId: member.workspaceId!,
             name: skill.name,
             category: skill.category,
@@ -219,7 +219,7 @@ const app = new Hono()
           })
         )
       );
-      return c.json({ data: { documents: toApiResponseArray(newSkills) } });
+      return c.json({ data: { documents: newSkills } });
     }
   );
 

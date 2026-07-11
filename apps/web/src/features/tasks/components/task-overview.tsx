@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Task } from "../types";
+import { PopulatedTask } from "../types";
 import { PencilIcon } from "lucide-react";
 import { DottedSeparator } from "@/components/dotted-separator";
 import { OverviewPropery } from "./overview-property";
@@ -10,7 +10,7 @@ import { snakeCaseToTitleCase } from "@/lib/utils";
 import { useUpdateTaskModal } from "../hooks/use-update-task-modal";
 
 interface TaskOverviewProps {
-  task: Task;
+  task: PopulatedTask;
 }
 
 export const TaskOverview = ({ task }: TaskOverviewProps) => {
@@ -20,7 +20,7 @@ export const TaskOverview = ({ task }: TaskOverviewProps) => {
       <div className="bg-muted rounded-lg p-4 bg-white">
         <div className="flex items-center justify-between">
           <p className="text-lg font-semibold">Overview</p>
-          <Button size="sm" variant="secondary" onClick={() => open(task.$id)}>
+          <Button size="sm" variant="secondary" onClick={() => open(task.id)}>
             <PencilIcon className="size-4 mr-2" />
             Edit
           </Button>
@@ -28,8 +28,8 @@ export const TaskOverview = ({ task }: TaskOverviewProps) => {
         <DottedSeparator className="my-4" />
         <div className="flex flex-col gap-y-4">
           <OverviewPropery label="Assignee">
-            <MembersAvatar name={task.assignee.name} className="size-8" />
-            <p className="text-sm font-medium">{task.assignee.name}</p>
+            <MembersAvatar name={task.assignee?.name ?? "Unassigned"} className="size-8" />
+            <p className="text-sm font-medium">{task.assignee?.name ?? "Unassigned"}</p>
           </OverviewPropery>
           <OverviewPropery label="Due date">
             <TaskDate value={task.dueDate} className="text-sm font-medium" />

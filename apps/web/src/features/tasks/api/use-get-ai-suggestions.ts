@@ -10,7 +10,7 @@ export const useGetAISuggestions = (task: Task | null) => {
   const { data: members } = useGetMembers({ id: workspaceId, type: "workspace" });
 
   return useQuery({
-    queryKey: ["ai-suggestions", task?.$id],
+    queryKey: ["ai-suggestions", task?.id],
     queryFn: async (): Promise<UserMatch[]> => {
       if (!task || !members?.documents || !task.projectId) {
         return [];
@@ -21,7 +21,7 @@ export const useGetAISuggestions = (task: Task | null) => {
         members.documents.map(async (member) => {
           try {
             const skillsResponse = await fetch(
-              `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/members/${member.$id}/skills`
+              `${process.env.NEXT_PUBLIC_APP_URL || ""}/api/members/${member.id}/skills`
             );
             if (!skillsResponse.ok) {
               return null;
@@ -33,11 +33,11 @@ export const useGetAISuggestions = (task: Task | null) => {
               experience_years: number;
               proficiency_score: number;
             }> };
-            if (!member.$id) {
+            if (!member.id) {
               return null;
             }
             return {
-              id: member.$id,
+              id: member.id,
               name: member.name,
               skills: skills.documents.map((skill) => ({
                 name: skill.name,
@@ -70,7 +70,7 @@ export const useGetAISuggestions = (task: Task | null) => {
 
       // Convert task to AI format
       const aiTask = {
-        task_id: task.$id,
+        task_id: task.id,
         name: task.name,
         complexity: 5, // Default complexity
         estimated_hours: 8, // Default estimate

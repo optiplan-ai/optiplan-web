@@ -46,7 +46,7 @@ export const SignUpCard = () => {
       <CardHeader className="flex items-center justify-center text-center p-7">
         <CardTitle className="text-2xl">Sign Up</CardTitle>
         <CardDescription>
-          Create your account to gain access to your Project Manager.
+          Create your account to get started with Windrose.
         </CardDescription>
       </CardHeader>
       <div className="px-7">

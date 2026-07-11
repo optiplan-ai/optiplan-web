@@ -83,8 +83,8 @@ export const TaskList = ({ data, total }: TaskListProps) => {
         <DottedSeparator className="my-4" />
         <ul className="flex flex-col gap-y-4">
           {data.map((task) => (
-            <li key={task.$id}>
-              <Link href={`/workspaces/${workspaceId}/tasks/${task.$id}`}>
+            <li key={task.id}>
+              <Link href={`/workspaces/${workspaceId}/tasks/${task.id}`}>
                 <Card className="shadow-none rounded-lg hover:bg-slate-300 transition">
                   <CardContent className="p-4">
                     <p className="text-lg font-medium truncate">{task.name}</p>
@@ -143,15 +143,15 @@ export const ProjectList = ({ data, total }: ProjectListProps) => {
         <DottedSeparator className="my-4" />
         <ul className="grid grid-cols-1 lg:grid-cols-2 gap-4">
           {data.map((project) => (
-            <li key={project.$id}>
-              <Link href={`/workspaces/${workspaceId}/projects/${project.$id}`}>
+            <li key={project.id}>
+              <Link href={`/workspaces/${workspaceId}/projects/${project.id}`}>
                 <Card className="shadow-none rounded-lg hover:bg-slate-300 transition">
                   <CardContent className="p-4 flex items-center gap-x-2.5">
                     <ProjectAvatar
                       className="size-10"
                       fallbackClassName="textmd"
                       name={project.name}
-                      image={project.imageUrl}
+                      image={project.imageUrl ?? undefined}
                     />
                     <p className="text-lg font-medium truncate">
                       {project.name}
@@ -191,7 +191,7 @@ export const MembersList = ({ data, total }: MembersListProps) => {
         <DottedSeparator className="my-4" />
         <ul className="flex flex-col items-start gap-y-2">
           {data.map((member) => (
-            <li key={member.$id} className="w-full">
+            <li key={member.id} className="w-full">
               <Card className="shadow-none rounded-lg w-full">
                 <CardContent className="p-3 flex justify-between items-center gap-x-2">
                   <div className="flex flex-row items-center gap-x-2">

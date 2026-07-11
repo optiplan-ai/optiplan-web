@@ -9,7 +9,7 @@ import { NuqsAdapter } from "nuqs/adapters/next/app";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Project Manager",
+  title: "Windrose",
   description:
     "A project management tool for creating workspaces, projects, tasks and handling them efficiently with your co-workers.",
 };
@@ -22,7 +22,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <head>
-        <meta name="apple-mobile-web-app-title" content="Project Manager" />
+        <meta name="apple-mobile-web-app-title" content="Windrose" />
       </head>
       <body
         className={cn(inter.className, "antialiased min-h-screen bg-black")}

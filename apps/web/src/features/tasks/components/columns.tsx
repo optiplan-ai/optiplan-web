@@ -2,7 +2,7 @@
 
 import { ColumnDef } from "@tanstack/react-table";
 import { ArrowUpDown, MoreVertical } from "lucide-react";
-import { Task } from "../types";
+import { PopulatedTask } from "../types";
 import { Button } from "@/components/ui/button";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { MembersAvatar } from "@/features/members/components/members-avatar";
@@ -11,7 +11,7 @@ import { Badge } from "@/components/ui/badge";
 import { snakeCaseToTitleCase } from "@/lib/utils";
 import { TaskActions } from "./task-actions";
 
-export const columns: ColumnDef<Task>[] = [
+export const columns: ColumnDef<PopulatedTask>[] = [
   {
     accessorKey: "name",
     header: ({ column }) => {
@@ -52,7 +52,7 @@ export const columns: ColumnDef<Task>[] = [
           <div className="ml-4 flex items-center gap-x-2 text-sm">
             <ProjectAvatar
               name={project.name}
-              image={project.imageUrl}
+              image={project.imageUrl ?? undefined}
               className="size-6"
             />
             <p className="line-clamp-1">{project.name}</p>
@@ -79,11 +79,11 @@ export const columns: ColumnDef<Task>[] = [
       return (
         <div className="ml-3.5 flex items-center gap-x-2 text-sm">
           <MembersAvatar
-            name={assignee.name}
+            name={assignee?.name ?? "Unassigned"}
             fallbackClassName="text-xs"
             className="size-6"
           />
-          <p className="line-clamp-1">{assignee.name}</p>
+          <p className="line-clamp-1">{assignee?.name ?? "Unassigned"}</p>
         </div>
       );
     },
@@ -131,7 +131,7 @@ export const columns: ColumnDef<Task>[] = [
   {
     id: "actions",
     cell: ({ row }) => {
-      const id = row.original.$id;
+      const id = row.original.id;
       return (
         <TaskActions id={id}>
           <Button variant="ghost" className="size-8 p-0 hover:bg-slate-300">

@@ -26,6 +26,15 @@ import { createProjectSchema } from "../schema";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { Textarea } from "@/components/ui/textarea";
 
+// Client-side form schema: no transforms, so zod input/output types match
+// and react-hook-form generics resolve cleanly.
+const projectFormSchema = z.object({
+  name: z.string().trim().min(1, "Required"),
+  image: z.union([z.instanceof(File), z.string()]).optional(),
+  prompt: z.string().optional(),
+});
+type ProjectFormValues = z.infer<typeof projectFormSchema>;
+
 interface CreateProjectFormProps {
   onCancel?: () => void;
   useAI?: boolean;
@@ -36,27 +45,29 @@ export const CreateProjectForm = ({ onCancel, useAI = false }: CreateProjectForm
   const workspaceId = useWorkspaceId();
   const { mutate, isPending } = useCreateProject();
   const inputRef = useRef<HTMLInputElement>(null);
-  const form = useForm<z.infer<typeof createProjectSchema>>({
-    resolver: zodResolver(createProjectSchema.omit({ workspaceId: true })),
+  const form = useForm<ProjectFormValues>({
+    resolver: zodResolver(projectFormSchema),
     defaultValues: {
       name: "",
       prompt: "",
     },
   });
 
-  const onSubmit = (values: z.infer<typeof createProjectSchema>) => {
+  const onSubmit = (values: ProjectFormValues) => {
     const finalValues = {
       ...values,
       workspaceId,
       image: values.image instanceof File ? values.image : "",
-      generation_type: useAI ? "ai_generated" : "manual",
+      generation_type: (useAI ? "ai_generated" : "manual") as
+        | "ai_generated"
+        | "manual",
     };
     mutate(
       { form: finalValues },
       {
         onSuccess: ({ data }) => {
           form.reset();
-          router.push(`/workspaces/${workspaceId}/projects/${data.$id}`);
+          router.push(`/workspaces/${workspaceId}/projects/${data.id}`);
         },
       }
     );

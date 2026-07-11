@@ -8,7 +8,7 @@ import { Project, ProjectGenerationType } from "../types";
 import { endOfMonth, startOfMonth, subMonths } from "date-fns";
 import { TaskStatus } from "@/features/tasks/types";
 import { aiClient } from "@/lib/ai-client";
-import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments, toApiResponse } from "@/lib/db-helpers";
+import { COLLECTIONS, createDocument, getDocument, updateDocument, deleteDocument, listDocuments } from "@/lib/db-helpers";
 import { Member } from "@/lib/models/Member";
 import { UserSkill } from "@/lib/models/UserSkill";
 import { getUserById } from "@/lib/auth";
@@ -27,7 +27,7 @@ const app = new Hono()
       const { name, image, workspaceId, prompt, generation_type } = c.req.valid("form");
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -119,7 +119,7 @@ const app = new Hono()
               status: TaskStatus.TODO,
               workspaceId,
               projectId: project.id,
-              assigneeId: suggestedAssigneeId || user.$id, // Fallback to current user
+              assigneeId: suggestedAssigneeId || user.id, // Fallback to current user
               position: (i + 1) * 1000,
               dueDate: taskDueDate.toISOString().split('T')[0], // Format as YYYY-MM-DD
               description: aiTask.description || `Complexity: ${aiTask.complexity}/10, Estimated: ${aiTask.estimated_hours}h`,
@@ -133,7 +133,7 @@ const app = new Hono()
         }
       }
 
-      return c.json({ data: toApiResponse(project) });
+      return c.json({ data: project });
     }
   )
   .get(
@@ -145,7 +145,7 @@ const app = new Hono()
       const { workspaceId } = c.req.valid("query");
       const member = await getMember({
         workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -155,7 +155,7 @@ const app = new Hono()
       }, {
         sort: { createdAt: -1 },
       });
-      return c.json({ data: { documents: projectsList.documents.map(toApiResponse), total: projectsList.total } });
+      return c.json({ data: { documents: projectsList.documents, total: projectsList.total } });
     }
   )
   .patch(
@@ -175,7 +175,7 @@ const app = new Hono()
       }
       const member = await getMember({
         workspaceId: existingProject.workspaceId,
-        userId: user.$id,
+        userId: user.id,
       });
       if (!member) {
         return c.json({ error: "Unauthorized" }, 401);
@@ -193,7 +193,7 @@ const app = new Hono()
       } else {
         uploadedImageUrl = image;
       }
-      const project = await updateDocument(
+      const project = await updateDocument<Project>(
         COLLECTIONS.projects,
         projectId,
         {
@@ -201,7 +201,10 @@ const app = new Hono()
           imageUrl: uploadedImageUrl,
         }
       );
-      return c.json({ data: toApiResponse(project) });
+      if (!project) {
+        return c.json({ error: "Project not found" }, 404);
+      }
+      return c.json({ data: project });
     }
   )
   .delete("/:projectId", sessionMiddleware, async (c) => {
@@ -216,13 +219,13 @@ const app = new Hono()
     }
     const member = await getMember({
       workspaceId: existingProject.workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);
     }
     await deleteDocument(COLLECTIONS.projects, projectId);
-    return c.json({ data: { $id: projectId } });
+    return c.json({ data: { id: projectId } });
   })
   .get("/:projectId", sessionMiddleware, async (c) => {
     const user = c.get("user");
@@ -236,12 +239,12 @@ const app = new Hono()
     }
     const member = await getMember({
       workspaceId: project.workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);
     }
-    return c.json({ data: toApiResponse(project) });
+    return c.json({ data: project });
   })
   .get("/:projectId/analytics", sessionMiddleware, async (c) => {
     const user = c.get("user");
@@ -255,7 +258,7 @@ const app = new Hono()
     }
     const member = await getMember({
       workspaceId: project.workspaceId,
-      userId: user.$id,
+      userId: user.id,
     });
     if (!member) {
       return c.json({ error: "Unauthorized" }, 401);

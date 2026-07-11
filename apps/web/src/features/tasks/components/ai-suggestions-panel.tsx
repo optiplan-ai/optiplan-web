@@ -25,7 +25,7 @@ export const AISuggestionsPanel = ({
     updateTask(
       {
         json: { assigneeId: memberId },
-        param: { taskId: task.$id },
+        param: { taskId: task.id },
       },
       {
         onSuccess: () => {

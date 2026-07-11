@@ -28,14 +28,14 @@ export const CreateTaskFormWrapper = ({
   const projectOptions = projects?.documents
     .filter((project): project is NonNullable<typeof project> => project !== null)
     .map((project) => ({
-      id: project.$id,
+      id: project.id,
       name: project.name,
-      imageUrl: project.imageUrl,
+      imageUrl: project.imageUrl ?? undefined,
     }));
   const memberOptions = members?.documents
-    .filter((member): member is typeof member & { $id: string } => member.$id !== undefined)
+    .filter((member): member is typeof member & { id: string } => member.id !== undefined)
     .map((member) => ({
-      id: member.$id,
+      id: member.id,
       name: member.name,
     }));
   const isLoading = isLoadingMembers || isLoadingProjects;

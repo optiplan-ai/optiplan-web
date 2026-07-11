@@ -70,7 +70,7 @@ export const EditWorkspaceForm = ({
     deleteWorkspace(
       {
         param: {
-          workspaceId: initialValues.$id,
+          workspaceId: initialValues.id,
         },
       },
       {
@@ -87,7 +87,7 @@ export const EditWorkspaceForm = ({
     }
     resetInviteCode({
       param: {
-        workspaceId: initialValues.$id,
+        workspaceId: initialValues.id,
       },
     });
   };
@@ -96,7 +96,7 @@ export const EditWorkspaceForm = ({
       ...values,
       image: values.image instanceof File ? values.image : "",
     };
-    mutate({ form: finalValues, param: { workspaceId: initialValues.$id } });
+    mutate({ form: finalValues, param: { workspaceId: initialValues.id } });
   };
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,7 +109,7 @@ export const EditWorkspaceForm = ({
       toast.success("Invite link copied to clipboard");
     });
   };
-  const fullInviteLink = `${window.location.origin}/workspaces/${initialValues.$id}/join/${initialValues.inviteCode}`;
+  const fullInviteLink = `${window.location.origin}/workspaces/${initialValues.id}/join/${initialValues.inviteCode}`;
   return (
     <div className="flex flex-col gap-y-4">
       <DeleteDialog />
@@ -123,7 +123,7 @@ export const EditWorkspaceForm = ({
             onClick={
               onCancel
                 ? onCancel
-                : () => router.push(`/workspaces/${initialValues.$id}`)
+                : () => router.push(`/workspaces/${initialValues.id}`)
             }
           >
             <ArrowLeftIcon className="size-4 mr-2" />

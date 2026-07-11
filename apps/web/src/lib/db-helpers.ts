@@ -24,28 +24,6 @@ export const COLLECTIONS = {
   userSkills: "user_skills",
 } as const;
 
-// Helper to convert database record to API response format (with $id)
-export function toApiResponse<T extends { id: string }>(
-  doc: T | null
-): (Omit<T, "id"> & { $id: string }) | null {
-  if (!doc) return null;
-  const { id, ...rest } = doc;
-  return {
-    ...rest,
-    $id: id,
-  } as Omit<T, "id"> & { $id: string };
-}
-
-export function toApiResponseArray<T extends { id: string }>(
-  docs: T[]
-): (Omit<T, "id"> & { $id: string })[] {
-  return docs.map(toApiResponse).filter((doc): doc is Omit<T, "id"> & { $id: string } => doc !== null);
-}
-
-export function toObjectId(id: string | undefined): string | undefined {
-  return id;
-}
-
 // Database operations
 export async function createDocument<T extends { id?: string; createdAt?: Date; updatedAt?: Date }>(
   collection: string,

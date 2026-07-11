@@ -8,36 +8,34 @@ export enum TaskStatus {
   IN_REVIEW = "IN_REVIEW",
 }
 
+/** Task as serialized over the API (dates become ISO strings in JSON). */
 export type Task = {
-  $id: string;
   id: string;
   name: string;
   status: TaskStatus;
   workspaceId: string;
-  assigneeId: string;
-  projectId?: string;
+  assigneeId: string | null;
+  projectId: string | null;
   position: number;
   dueDate: string;
-  description?: string;
-  dependsOn?: string[];
-  aiSuggestedAssignees?: string[];
-  createdAt: Date;
-  updatedAt: Date;
+  description?: string | null;
+  dependsOn?: string[] | null;
+  aiSuggestedAssignees?: string[] | null;
+  createdAt: string;
+  updatedAt: string;
 };
 
-export type TaskWithProject = {
-  $id?: string;
-  name?: string;
-  status?: TaskStatus;
-  workspaceId?: string;
-  assigneeId?: string;
-  projectId?: string;
-  position?: number;
-  dueDate?: string;
-  description?: string;
-  dependsOn?: string[];
-  aiSuggestedAssignees?: string[];
-  createdAt?: string;
-  updatedAt?: string;
-  project: (Omit<Partial<Project>, "id" | "createdAt" | "updatedAt"> & { $id: string; createdAt?: string; updatedAt?: string }) | null;
+export type TaskAssignee = {
+  id: string;
+  name: string;
+  email?: string;
 };
+
+/** Task enriched by list/detail endpoints with its project and assignee. */
+export type PopulatedTask = Task & {
+  project: Project | null;
+  assignee?: TaskAssignee | null;
+};
+
+/** @deprecated use PopulatedTask */
+export type TaskWithProject = PopulatedTask;

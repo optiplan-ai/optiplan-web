@@ -5,12 +5,12 @@ import { MembersAvatar } from "@/features/members/components/members-avatar";
 import { ProjectAvatar } from "@/features/projects/components/projects-avatar";
 import { useWorkspaceId } from "@/features/workspaces/hooks/use-workspace-id";
 import { useRouter } from "next/navigation";
-import { Member } from "@/features/members/types";
+import { TaskAssignee } from "../types";
 
 interface EventCardProps {
   title: string;
-  assignee: Member;
-  project: Project;
+  assignee: TaskAssignee | null | undefined;
+  project: Project | null;
   status: TaskStatus;
   id: string;
 }
@@ -47,7 +47,7 @@ export const EventCard = ({
       >
         <p className="line-clamp-1">{title}</p>
         <div className="flex items-center gap-x-1 overflow-hidden">
-          <MembersAvatar name={assignee?.name} />
+          <MembersAvatar name={assignee?.name ?? "Unassigned"} />
           {project === null || project === undefined ? (
             <p className="text-xs text-muted-foreground">No project assigned</p>
           ) : (
@@ -55,7 +55,7 @@ export const EventCard = ({
               <div className="bg-black size-1 rounded-full" />
               <ProjectAvatar
                 name={project?.name}
-                image={project?.imageUrl}
+                image={project?.imageUrl ?? undefined}
                 className="w-[1.32rem] h-[1.32rem]"
               />
             </>

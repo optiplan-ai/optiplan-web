@@ -3,7 +3,7 @@ import Image from "next/image";
 import { Navigation } from "./navigation";
 import { WorkspaceSwitcher } from "./workspace-switcher";
 import { Projects } from "./projects";
-import { DottedSeparator1 } from "./dotted-separator copy";
+import { DottedSeparator1 } from "./dotted-separator-alt";
 
 export const Sidebar = () => {
   return (
@@ -17,7 +17,7 @@ export const Sidebar = () => {
             height={90}
           />
           <span className="font-bold text-2xl text-center">
-            Project Manager
+            Windrose
           </span>
         </div>
       </Link>

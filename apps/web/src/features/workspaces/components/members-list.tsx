@@ -18,7 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useDeleteMember } from "@/features/members/api/use-delete-member";
 import { useUpdateMember } from "@/features/members/api/use-update-member";
-import { memberRole } from "@/features/members/types";
+import { MemberRole } from "@/features/members/types";
 import { useConfirm } from "@/hooks/use-confirm";
 import { useRouter } from "next/navigation";
 import { UserSkillsManager } from "@/features/members/components/user-skills-manager";
@@ -39,7 +39,7 @@ export const MembersList = () => {
     useDeleteMember();
   const { mutate: updateMember, isPending: isUpdatingMember } =
     useUpdateMember();
-  const handleUpdateMember = (memberId: string, role: memberRole) => {
+  const handleUpdateMember = (memberId: string, role: MemberRole) => {
     updateMember({ json: { role }, param: { memberId } });
   };
   const handleDeleteMember = async (memberId: string) => {
@@ -76,7 +76,7 @@ export const MembersList = () => {
           <Loader className="animate-spin size-4" />
         ) : (
           data?.documents.map((member, index) => (
-            <Fragment key={member.$id}>
+            <Fragment key={member.id}>
               <div className="flex items-center gap-2">
                 <MembersAvatar
                   className="size-10"
@@ -89,7 +89,7 @@ export const MembersList = () => {
                     {member.email}
                   </p>
                 </div>
-                <UserSkillsManager memberId={member.$id} memberName={member.name} />
+                <UserSkillsManager memberId={member.id} memberName={member.name} />
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button className="ml-auto" variant="secondary" size="icon">
@@ -100,7 +100,7 @@ export const MembersList = () => {
                     <DropdownMenuItem
                       className="font-medium hover:bg-slate-300"
                       onClick={() =>
-                        handleUpdateMember(member.$id, memberRole.ADMIN)
+                        handleUpdateMember(member.id, MemberRole.ADMIN)
                       }
                       disabled={isUpdatingMember}
                     >
@@ -109,7 +109,7 @@ export const MembersList = () => {
                     <DropdownMenuItem
                       className="font-medium hover:bg-slate-300"
                       onClick={() =>
-                        handleUpdateMember(member.$id, memberRole.MEMBER)
+                        handleUpdateMember(member.id, MemberRole.MEMBER)
                       }
                       disabled={isUpdatingMember}
                     >
@@ -117,7 +117,7 @@ export const MembersList = () => {
                     </DropdownMenuItem>
                     <DropdownMenuItem
                       className="font-medium text-red-500 focus:text-red-500 hover:bg-red-100"
-                      onClick={() => handleDeleteMember(member.$id)}
+                      onClick={() => handleDeleteMember(member.id)}
                       disabled={isDeletingMember}
                     >
                       Remove {member.name}

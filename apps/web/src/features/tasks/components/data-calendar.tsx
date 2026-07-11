@@ -1,4 +1,4 @@
-import { Task } from "../types";
+import { PopulatedTask } from "../types";
 import {
   format,
   getDay,
@@ -29,7 +29,7 @@ const localizer = dateFnsLocalizer({
 });
 
 interface DataCalendarProps {
-  data: Task[];
+  data: PopulatedTask[];
 }
 
 interface CustomToolbarProps {
@@ -75,7 +75,7 @@ export const DataCalendar = ({ data }: DataCalendarProps) => {
     project: task.project,
     assignee: task.assignee,
     status: task.status,
-    id: task.$id,
+    id: task.id,
   }));
   const handleNavigate = (action: "PREV" | "NEXT" | "TODAY") => {
     if (action === "PREV") {

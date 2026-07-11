@@ -52,7 +52,7 @@ export function areDependenciesSatisfied(
   }
 
   return task.dependsOn.every((depTaskId: string) => {
-    const depTask = allTasks.find((t) => t.$id === depTaskId);
+    const depTask = allTasks.find((t) => t.id === depTaskId);
     return depTask?.status === "DONE";
   });
 }
@@ -125,7 +125,7 @@ export function optimizeAssignments(
   }
 
   return {
-    taskId: task.$id,
+    taskId: task.id,
     suggestedAssigneeId: bestMatch.user_id,
     confidence: bestMatch.combinedScore,
     reason,
@@ -151,7 +151,7 @@ export function optimizeBulkAssignments(
   });
 
   sortedTasks.forEach((task) => {
-    const matches = aiMatchesMap.get(task.$id) || [];
+    const matches = aiMatchesMap.get(task.id) || [];
     const optimization = optimizeAssignments(
       task,
       matches,
@@ -159,7 +159,7 @@ export function optimizeBulkAssignments(
       memberIds
     );
     if (optimization) {
-      results.set(task.$id, optimization);
+      results.set(task.id, optimization);
     }
   });
 

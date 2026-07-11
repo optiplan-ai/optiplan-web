@@ -5,7 +5,7 @@ import { User } from "./models";
 
 type AdditionalContext = {
   Variables: {
-    user: User & { id: string; $id: string };
+    user: User & { id: string };
     userId: string;
   };
 };
@@ -38,20 +38,18 @@ export const sessionMiddleware = createMiddleware<AdditionalContext>(
         return c.json({ error: "Unauthorized" }, 401);
       }
 
-      // Convert Better Auth user to our API format (with $id)
-      const userWithId: User & { id: string; $id: string } = {
+      const userWithId: User & { id: string } = {
         id: sessionData.user.id,
         email: sessionData.user.email,
         name: sessionData.user.name || "",
         emailVerified: sessionData.user.emailVerified ?? false,
         image: sessionData.user.image ?? null,
-        createdAt: sessionData.user.createdAt 
-          ? new Date(sessionData.user.createdAt) 
+        createdAt: sessionData.user.createdAt
+          ? new Date(sessionData.user.createdAt)
           : new Date(),
-        updatedAt: sessionData.user.updatedAt 
-          ? new Date(sessionData.user.updatedAt) 
+        updatedAt: sessionData.user.updatedAt
+          ? new Date(sessionData.user.updatedAt)
           : new Date(),
-        $id: sessionData.user.id,
       };
 
       c.set("user", userWithId);

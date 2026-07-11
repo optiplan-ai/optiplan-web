@@ -24,8 +24,8 @@ export const useCreateWorkspace = () => {
         queryKey: ["workspaces"],
       });
       // Redirect to the created workspace if data is available
-      if (data?.data?.$id) {
-        router.push(`/workspaces/${data.data.$id}`);
+      if (data?.data?.id) {
+        router.push(`/workspaces/${data.data.id}`);
         router.refresh();
       } else {
         router.refresh();

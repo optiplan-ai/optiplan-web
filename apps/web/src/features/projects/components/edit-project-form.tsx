@@ -49,8 +49,9 @@ export const EditProjectForm = ({
   const form = useForm<z.infer<typeof updateProjectSchema>>({
     resolver: zodResolver(updateProjectSchema),
     defaultValues: {
-      ...initialValues,
+      name: initialValues.name,
       image: initialValues.imageUrl ?? "",
+      prompt: initialValues.prompt ?? undefined,
     },
   });
   const handleDelete = async () => {
@@ -61,7 +62,7 @@ export const EditProjectForm = ({
     deleteProject(
       {
         param: {
-          projectId: initialValues.$id,
+          projectId: initialValues.id,
         },
       },
       {
@@ -76,7 +77,7 @@ export const EditProjectForm = ({
       ...values,
       image: values.image instanceof File ? values.image : "",
     };
-    mutate({ form: finalValues, param: { projectId: initialValues.$id } });
+    mutate({ form: finalValues, param: { projectId: initialValues.id } });
   };
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -97,7 +98,7 @@ export const EditProjectForm = ({
                 ? onCancel
                 : () =>
                     router.push(
-                      `/workspaces/${initialValues.workspaceId}/projects/${initialValues.$id}`
+                      `/workspaces/${initialValues.workspaceId}/projects/${initialValues.id}`
                     )
             }
           >

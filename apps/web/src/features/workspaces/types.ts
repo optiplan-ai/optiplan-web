@@ -1,10 +1,10 @@
+/** Workspace as serialized over the API (dates become ISO strings in JSON). */
 export type Workspace = {
-  $id: string;
   id: string;
   name: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   inviteCode: string;
   userId: string;
-  createdAt: Date;
-  updatedAt: Date;
+  createdAt: string;
+  updatedAt: string;
 };
